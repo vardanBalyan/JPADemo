@@ -5,7 +5,13 @@ import com.ttn.JPADemo.employee.repos.EmployeeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +40,7 @@ class JpaDemoApplicationTests {
 	@Test
 	public void testRead()
 	{
-		Employee employee = repository.findById(1).get();
+		Employee employee = repository.findById(2).get();
 		assertNotNull(employee);
 		assertEquals("Vardan Balyan",employee.getName());
 		System.out.println(">>>>>>>>>>>>>>>> "+employee.getName());
@@ -94,6 +100,36 @@ class JpaDemoApplicationTests {
 	{
 		List<Employee> employees = repository.findByNameLike("A%");
 		employees.forEach(emp-> System.out.println(emp.getName()));
+	}
+
+	@Test
+	public void testFindAllPaging()
+	{
+		PageRequest pageable = PageRequest.of(1,2);
+		Page<Employee> result = repository.findAll(pageable);
+		result.forEach(emp-> System.out.println(emp.getName()));
+	}
+
+	@Test
+	public void testFindAllSorting()
+	{
+		repository.findAll(Sort.by(Sort.Direction.DESC,"name","age"))
+				.forEach(emp-> System.out.println(emp.getName()));
+	}
+
+	@Test
+	public void testFindAllSortingAndPaging()
+	{
+		PageRequest pageable = PageRequest.of(1,3, Sort.Direction.DESC,"age");
+		repository.findAll(pageable).forEach(emp-> System.out.println(emp.getName()+" "+emp.getAge()));
+	}
+
+	@Test
+	public void findAllByInPaging()
+	{
+		PageRequest pageable = PageRequest.of(0,3);
+		List<Employee> employees = repository.findByIdIn(Arrays.asList(2,3,5),pageable);
+		employees.forEach(emp-> System.out.println(emp.getId()+" "+emp.getName()));
 	}
 }
 
