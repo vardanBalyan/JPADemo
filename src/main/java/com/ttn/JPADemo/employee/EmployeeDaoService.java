@@ -24,9 +24,10 @@ public class EmployeeDaoService {
         return employeeList;
     }
 
-    public void createEmployee(Employee employee)
+    public Employee createEmployee(Employee employee)
     {
         repository.save(employee);
+        return new Employee();
     }
 
     public Employee readAnEmployee(int id)

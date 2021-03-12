@@ -2,9 +2,11 @@ package com.ttn.JPADemo.employee;
 
 import com.ttn.JPADemo.employee.entities.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,9 +24,15 @@ public class EmployeeResource {
 
     // Create an employee
     @PostMapping(path = "/employee")
-    public void addEmployee(@RequestBody Employee employee)
+    public ResponseEntity<Object> addEmployee(@RequestBody Employee employee)
     {
-        service.createEmployee(employee);
+        Employee savedEmployee = service.createEmployee(employee);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedEmployee.getId()).toUri();
+
+        return ResponseEntity.created(location).build();
     }
 
     // Delete an employee by id
@@ -92,5 +100,7 @@ public class EmployeeResource {
     public void updateAnEmployee(@RequestBody Employee employee, @RequestParam int id)
     {
         Employee updatedEmployee = service.updateEmployee(employee, id);
+        if(updatedEmployee == null)
+            throw new EmployeeNotFoundException("Employee with given id does not exist");
     }
 }
